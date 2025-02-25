@@ -9,15 +9,21 @@ if 'calculate' not in st.session_state:
     st.session_state.calculate = False
 
 # 定义回归方程
+## def tmj_stress(mp, vo):
+##     """颞下颌关节盘应力回归方程（单位：MPa）"""
+##     return ( -7.036 + 0.179*mp + -0.106*vo)
+## 
+## def pdl_stress(mp, vo):
+##     """牙周膜应力回归方程（单位：kPa）"""
+##     return (-8.575 + 0.209*mp + 0.316*vo)
+
 def tmj_stress(mp, vo):
-    """颞下颌关节盘应力回归方程（单位：MPa）"""
-    return (9.978 + -0.479*mp + 0.840*vo + 
-            0.006*mp**2 + -0.019*mp*vo + 0.021*vo**2)
+    """颞下颌关节盘应力（MPa）"""
+    return 9.978 -0.479*mp + 0.840*vo + 0.006*mp**2 -0.019*mp*vo + 0.021*vo**2
 
 def pdl_stress(mp, vo):
-    """牙周膜应力回归方程（单位：kPa）"""
-    return (4.034 + -0.193*mp + 0.091*vo + 
-            0.003*mp**2 + 0.014*mp*vo + -0.061*vo**2)
+    """牙周膜应力（kPa）"""
+    return 4.034 -0.193*mp + 0.091*vo + 0.003*mp**2 + 0.014*mp*vo -0.061*vo**2
 
 # 页面配置
 st.set_page_config(page_title="MAD智能决策系统", layout="wide")
@@ -47,10 +53,11 @@ with st.sidebar:
         algorithm = st.selectbox("优化算法", ["SLSQP", "COBYLA", "trust-constr"], index=0)
         tolerance = st.number_input("优化容差", 1e-8, 1e-2, 1e-6, format="%.0e")
         max_iter = st.number_input("最大迭代次数", 50, 500, 200)
-        eps = st.number_input("调整步长参数", 0.1, 0.5, 1, format="%.0e")
+        eps = st.number_input("调整步长参数", 1e-1, 1e0, 5e-1, format="%.0e")
     
     # 计算触发按钮
-    if st.button("🚀 开始计算", use_container_width=True):
+    # if st.button("🚀 开始计算", help="点击启动优化计算", use_container_width=True):
+    if st.button("🚀 开始计算", help="点击启动优化计算"):
         st.session_state.calculate = True
 
 # ================= 主内容区域 =================
@@ -63,10 +70,10 @@ if st.session_state.calculate:
 
     # 约束条件
     constraints = [
-        {'type': 'ineq', 'fun': lambda x: st.session_state.max_tmj - tmj_stress(x, x)},
-        {'type': 'ineq', 'fun': lambda x: st.session_state.max_pdl - pdl_stress(x, x)},
-        {'type': 'ineq', 'fun': lambda x: x - st.session_state.min_mp},
-        {'type': 'ineq', 'fun': lambda x: x - st.session_state.min_vo}
+        {'type': 'ineq', 'fun': lambda x: st.session_state.max_tmj - tmj_stress(x[0], x[1])},
+        {'type': 'ineq', 'fun': lambda x: st.session_state.max_pdl - pdl_stress(x[0], x[1])},
+        {'type': 'ineq', 'fun': lambda x: x[0] - st.session_state.min_mp},
+        {'type': 'ineq', 'fun': lambda x: x[1] - st.session_state.min_vo}
     ]
 
     # 执行优化
@@ -85,11 +92,12 @@ if st.session_state.calculate:
         
         with col1:
             st.header("📊 优化结果")
-            st.metric("最佳前伸量(MP)", f"{result.x:.1f}%", 
-                     delta="关节盘安全阈值" if result.x < 65 else "注意：接近高风险区")
-            st.metric("最佳开口量(VO)", f"{result.x:.1f}mm", 
-                     delta="牙周膜安全阈值" if result.x < 6 else "注意：接近高风险区")
-            st.divider()
+            st.metric("最佳前伸量(MP)", f"{result.x[0]:.1f}%", 
+                     delta="关节盘安全阈值" if result.x[0] < 65 else "注意：接近高风险区")
+            st.metric("最佳开口量(VO)", f"{result.x[1]:.1f}mm", 
+                     delta="牙周膜安全阈值" if result.x[1] < 6 else "注意：接近高风险区")
+            # st.divider()
+            st.markdown("---") 
             
             # 应力指标
             tmj_value = tmj_stress(*result.x)
@@ -131,12 +139,13 @@ if st.session_state.calculate:
             st.pyplot(fig)
 
         # ================= 临床建议 =================
-        st.divider()
+        # st.divider()
+        st.markdown("---") 
         st.header("📋 临床建议")
         
-        if result.x >= 65:
+        if result.x[0] >= 65:
             st.warning("⚠️ 前伸量超过65%，建议密切监测关节健康")
-        if result.x >= 6:
+        if result.x[1] >= 6:
             st.warning("⚠️ 开口量超过6mm，建议检查牙周膜适应性")
         
         if tmj_value < 10 and pdl_value < 10:
@@ -145,7 +154,19 @@ if st.session_state.calculate:
             st.info("ℹ️ 参数接近临界值，建议定期复查")
 
     else:
-        st.error("⚠️ 未找到可行解，请调整约束条件！")
+        # st.error("⚠️ 未找到可行解，请调整约束条件！")
+        st.error(f"""
+            ⚠️ **未找到可行解，请调整约束条件！**  
+            可能原因：  
+            1. 约束过紧（当前阈值：{max_tmj}MPa/{max_pdl}kPa）  
+            2. 最小范围过高（MP≥{min_mp}%, VO≥{min_vo}mm）  
+            3. 权重失衡（当前：关节盘{weight_tmj:.1f}/牙周膜{weight_pdl:.1f}）  
+
+            建议调整策略：  
+            ▶ 放宽最大应力至{max_tmj+2}MPa/{max_pdl+2}kPa  
+            ▶ 降低最小范围至MP≥{max(min_mp-5,40)}%, VO≥{max(min_vo-1,3)}mm  
+            ▶ 调整权重分配（推荐：关节盘{weight_tmj-0.2:.1f}/牙周膜{weight_pdl+0.2:.1f}）
+            """)
 
 else:
     st.info("👆 请在侧边栏设置参数后点击【开始计算】")
@@ -180,3 +201,14 @@ if st.session_state.calculate and result.success:
         mime="application/pdf",
         use_container_width=True
     )
+    
+# ================= 系统信息 =================
+with st.sidebar:
+    st.markdown("---") 
+    st.sidebar.markdown("""
+    **系统版本**  
+    `v2.1.3 | 生物力学优化引擎  
+    `©2024 空军军医大学数字医学中心
+    """)
+    # st.divider()
+    
