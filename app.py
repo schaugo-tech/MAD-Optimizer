@@ -108,36 +108,51 @@ if st.session_state.calculate:
                      delta="安全" if pdl_value < 10 else "注意：接近危险值", delta_color="normal")
 
         with col2:
+        
+            # 患者最大前伸量和开口量（根据临床测量）
+            max_mp = 10  # 示例值，需替换为实际测量值(mm)
+            max_vo = 10  # 示例值，需替换为实际测量值(mm)
+            
+            # 正交实验设计参数
+            mp_percentages = [0.5, 0.55, 0.6, 0.65, 0.7]  # 前伸量比例
+            vo_values = [3, 4, 5, 6, 7]                   # 垂直开口量(mm)
+            
+            # 生成所有组合
+            MP, VO = np.meshgrid(
+                np.array(mp_percentages) * max_mp, 
+                np.array(vo_values)
+            )
+       
+        
             st.header("🌐 三维应力分布")
-            fig = plt.figure(figsize=(10, 6))
-            ax = fig.add_subplot(111, projection='3d')
             
-            # 生成网格数据
-            mp_range = np.linspace(st.session_state.min_mp, 70, 30)
-            vo_range = np.linspace(st.session_state.min_vo, 7, 30)
-            MP, VO = np.meshgrid(mp_range, vo_range)
+            # 创建包含两个子图的 Figure
+            fig = plt.figure(figsize=(20, 8))
             
-            # 计算综合应力
-            Stress = (st.session_state.weight_tmj * tmj_stress(MP, VO) 
-                    + st.session_state.weight_pdl * pdl_stress(MP, VO))
+            # ================= 关节盘应力子图 =================
+            ax1 = fig.add_subplot(121, projection='3d')
+            surf1 = ax1.plot_surface(MP, VO, tmj_stress(MP, VO), cmap='viridis', alpha=0.8)
+            ax1.scatter(max_mp*0.01*result.x[0], result.x[1], tmj_stress(result.x[0], result.x[1]), c='red', s=100, marker='*')
+            ax1.set_title('颞下颌关节盘应力 (MPa)')
             
-            # 绘制曲面
-            surf = ax.plot_surface(MP, VO, Stress, cmap='viridis', alpha=0.8)
-            ax.scatter(result.x, result.x, result.fun, 
-                      c='red', s=100, label='Optimal Point')
+            # ================= 牙周膜应力子图 =================
+            ax2 = fig.add_subplot(122, projection='3d')
+            surf2 = ax2.plot_surface(MP, VO, pdl_stress(MP, VO), cmap='plasma', alpha=0.8)
+            ax2.scatter(max_mp*0.01*result.x[0], result.x[1], pdl_stress(result.x[0], result.x[1]), c='blue', s=100, marker='^')
+            ax2.set_title('牙周膜应力 (kPa)')
             
-            # 设置坐标轴
-            ax.set_xlabel('MP (%)', labelpad=12)
-            ax.set_ylabel('VO (mm)', labelpad=12)
-            ax.set_zlabel('综合应力', labelpad=12)
-            ax.view_init(elev=30, azim=-45)
+            # 统一设置子图属性
+            for ax in [ax1, ax2]:
+                ax.set_xlabel('MP (%)', labelpad=12)
+                ax.set_ylabel('VO (mm)', labelpad=12)
+                ax.view_init(elev=30, azim=-45)
             
             # 添加颜色条
-            cbar = fig.colorbar(surf, shrink=0.5, aspect=10)
-            cbar.set_label('加权应力值', rotation=270, labelpad=15)
+            fig.colorbar(surf1, ax=ax1, shrink=0.5, label='应力值 (MPa)')
+            fig.colorbar(surf2, ax=ax2, shrink=0.5, label='应力值 (kPa)')
             
             st.pyplot(fig)
-
+                
         # ================= 临床建议 =================
         # st.divider()
         st.markdown("---") 
@@ -182,8 +197,8 @@ def generate_report():
     
     # 报告内容
     c.drawString(100, 750, "MAD矫治器优化报告")
-    c.drawString(100, 700, f"最佳前伸量: {result.x:.1f}%")
-    c.drawString(100, 680, f"最佳开口量: {result.x:.1f}mm")
+    c.drawString(100, 700, f"最佳前伸量: {result.x[0]:.1f}%")
+    c.drawString(100, 680, f"最佳开口量: {result.x[1]:.1f}mm")
     c.drawString(100, 660, f"关节盘应力: {tmj_value:.2f} MPa")
     c.drawString(100, 640, f"牙周膜应力: {pdl_value:.2f} kPa")
     
@@ -199,7 +214,7 @@ if st.session_state.calculate and result.success:
         data=report,
         file_name="MAD_优化报告.pdf",
         mime="application/pdf",
-        use_container_width=True
+        # use_container_width=True
     )
     
 # ================= 系统信息 =================
