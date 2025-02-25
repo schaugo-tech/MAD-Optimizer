@@ -29,8 +29,8 @@ with st.sidebar:
     
     # 安全阈值
     st.subheader("安全阈值")
-    max_tmj = st.slider("最大关节盘应力(MPa)", 0.0, 20.0, 10.0, key='max_tmj')
-    max_pdl = st.slider("最大牙周膜应力(kPa)", 0.0, 20.0, 10.0, key='max_pdl')
+    max_tmj = st.slider("最大关节盘应力(MPa)", 5.0, 20.0, 10.0, key='max_tmj')
+    max_pdl = st.slider("最大牙周膜应力(kPa)", 8.0, 20.0, 10.0, key='max_pdl')
     
     # 最小范围
     st.subheader("最小允许值")
@@ -47,6 +47,7 @@ with st.sidebar:
         algorithm = st.selectbox("优化算法", ["SLSQP", "COBYLA", "trust-constr"], index=0)
         tolerance = st.number_input("优化容差", 1e-8, 1e-2, 1e-6, format="%.0e")
         max_iter = st.number_input("最大迭代次数", 50, 500, 200)
+        eps = st.number_input("调整步长参数", 0.1, 0.5, 1, format="%.0e")
     
     # 计算触发按钮
     if st.button("🚀 开始计算", use_container_width=True):
@@ -75,7 +76,7 @@ if st.session_state.calculate:
         method=algorithm,
         bounds=[(st.session_state.min_mp, 70), (st.session_state.min_vo, 7)],
         constraints=constraints,
-        options={'maxiter': max_iter, 'ftol': tolerance}
+        options={'maxiter': max_iter, 'ftol': tolerance, 'eps': eps}
     )
 
     if result.success:
