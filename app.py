@@ -46,7 +46,7 @@ with st.sidebar:
         label="治疗策略倾向",
         min_value=0.0,
         max_value=1.0,
-        value=0.7,
+        value=0.8,
         step=0.1,
         format="疗效 → %.1f ← 安全",
         help="向左滑动优先考虑治疗效果，向右滑动优先考虑治疗安全性"
@@ -66,8 +66,8 @@ with st.sidebar:
     with st.expander("🔧 专家设置"):
         # 安全阈值
         st.subheader("安全阈值")
-        max_tmj = st.slider("最大关节盘应力(MPa)", 1.0, 20.0, 5.0, key='max_tmj')
-        max_pdl = st.slider("最大牙周膜应力(kPa)", 1.0, 20.0, 7.0, key='max_pdl')
+        max_tmj = st.slider("最大关节盘应力(MPa)", 1.0, 20.0, 7.0, key='max_tmj')
+        max_pdl = st.slider("最大牙周膜应力(kPa)", 1.0, 20.0, 10.0, key='max_pdl')
 
         # 最小范围
         st.subheader("最小允许值")
