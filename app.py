@@ -223,11 +223,11 @@ def generate_report():
     c = canvas.Canvas(buffer, pagesize=A4)
     
     # 报告内容
-    c.drawString(100, 750, "MAD矫治器优化设计报告")
-    c.drawString(100, 700, f"最佳前伸量: {st.session_state.max_mp_val*0.01*result.x[0]:.1f}mm")
-    c.drawString(100, 680, f"最佳开口量: {result.x[1]:.1f}mm")
-    c.drawString(100, 660, f"关节盘应力: {tmj_value:.2f} MPa")
-    c.drawString(100, 640, f"牙周膜应力: {pdl_value:.2f} kPa")
+    c.drawString(100, 750, "Optimization Design Report for Mandibular Advancement Device (MAD)")
+    c.drawString(100, 700, f"Optimal Mandibular Advancement Design Parameter: {st.session_state.max_mp_val*0.01*result.x[0]:.1f}mm")
+    c.drawString(100, 680, f"Optimal Vertical Opening Design Parameter: {result.x[1]:.1f}mm")
+    c.drawString(100, 660, f"Peak Stress of TMJ Disc: {tmj_value:.2f} MPa")
+    c.drawString(100, 640, f"Peak Stress in Mandibular Anterior PDL: {pdl_value:.2f} kPa")
     
     c.save()
     buffer.seek(0)
