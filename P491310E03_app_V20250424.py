@@ -29,7 +29,28 @@ def pdl_stress(mp, vo):
     return 3.562 + -0.183*mp + 0.153*vo + 0.003*mp**2 + 0.014*mp*vo + -0.062*vo**2
 
 # 页面配置
-st.set_page_config(page_title="MAD生物力学设计系统", layout="wide")
+st.set_page_config(
+    page_title="MADopt",
+    layout="wide",
+    initial_sidebar_state="expanded"   # 默认展开
+)
+
+# ====== 全局样式，调小标题 & 优化侧边栏按钮位置/宽度 ======
+st.markdown("""
+<style>
+/* 1) 标题调小：手机更小，桌面稍大 */
+h1 { font-size: 1.35rem; line-height: 1.3; }
+@media (min-width: 768px) { h1 { font-size: 1.8rem; } }
+
+/* 3) 确保侧边栏内容区域有足够的上边距 */
+section[data-testid="stSidebar"] > div {
+    padding-top: 50px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# 页面配置
+# st.set_page_config(page_title="MAD生物力学设计系统", layout="wide")
 st.title("基于颞下颌关节及下前牙生物力学研究的下颌前移矫治器设计系统")
 
 # ================= 侧边栏参数设置 =================
@@ -283,3 +304,4 @@ with st.sidebar:
     """)
     # st.divider()
     
+
