@@ -40,6 +40,14 @@ st.markdown("""
 /* 1) 标题调小：手机更小，桌面稍大 */
 h1 { font-size: 1.35rem; line-height: 1.3; }
 @media (min-width: 768px) { h1 { font-size: 1.8rem; } }
+
+/* 3) 确保侧边栏内容区域有足够的上边距 */
+section[data-testid="stSidebar"] > div {
+    padding-top: 50px;
+}
+
+
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -278,5 +286,4 @@ with st.sidebar:
     # st.divider()
 
     
-
 
