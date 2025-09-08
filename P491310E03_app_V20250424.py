@@ -51,7 +51,7 @@ section[data-testid="stSidebar"] > div {
 
 # 页面配置
 # st.set_page_config(page_title="MAD生物力学设计系统", layout="wide")
-st.title("基于颞下颌关节及下前牙生物力学研究的下颌前移矫治器设计系统")
+st.markdown("基于颞下颌关节及下前牙生物力学研究的下颌前移矫治器设计系统")
 
 # ================= 侧边栏参数设置 =================
 with st.sidebar:
@@ -304,4 +304,5 @@ with st.sidebar:
     """)
     # st.divider()
     
+
 
