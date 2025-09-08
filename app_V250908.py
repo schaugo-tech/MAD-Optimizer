@@ -41,14 +41,6 @@ st.markdown("""
 h1 { font-size: 1.35rem; line-height: 1.3; }
 @media (min-width: 768px) { h1 { font-size: 1.8rem; } }
 
-
-/* 3) 扩大点击热区 + 圆角，更好点按（适配两种结构） */
-[data-testid="stSidebarCollapseButton"] > button,
-[data-testid="stSidebarCollapseButton"] {
-  padding: 10px 14px !important;
-  border-radius: 12px !important;
-}
-
 /* 4) 如果顶部 header 盖住了它，可提升按钮层级或略微透明 header（按需打开） */
 /* header[data-testid="stHeader"] { background: rgba(255,255,255,0.95) !important; } */
 
@@ -294,3 +286,4 @@ with st.sidebar:
     # st.divider()
 
     
+
