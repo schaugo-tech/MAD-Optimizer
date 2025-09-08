@@ -30,7 +30,6 @@ def pdl_stress(mp, vo):
 # 页面配置
 st.set_page_config(
     page_title="MADopt",
-    page_icon="🦷",        # 可选
     layout="wide",
     initial_sidebar_state="expanded"   # 默认展开
 )
@@ -42,16 +41,6 @@ st.markdown("""
 h1 { font-size: 1.35rem; line-height: 1.3; }
 @media (min-width: 768px) { h1 { font-size: 1.8rem; } }
 
-/* 2) 兼容不同版本：无论按钮在 div 还是 button 上，都统一重定位 */
-[data-testid="stSidebarCollapseButton"],
-[data-testid="stSidebarCollapseButton"] > button,
-div[data-testid="stSidebarCollapseButton"] {
-  position: fixed !important;                  /* 固定定位，脱离原布局 */
-  top: calc(env(safe-area-inset-top) + 88px) !important; /* ← 想更靠下就调大数值 */
-  left: 12px !important;
-  z-index: 10000 !important;
-  transform: none !important;
-}
 
 /* 3) 扩大点击热区 + 圆角，更好点按（适配两种结构） */
 [data-testid="stSidebarCollapseButton"] > button,
@@ -303,4 +292,5 @@ with st.sidebar:
     `v2.1.3 | 生物力学优化引擎` \n ©2024 空军军医大学 甘淡
     """)
     # st.divider()
+
     
