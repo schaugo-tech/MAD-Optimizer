@@ -40,16 +40,8 @@ st.markdown("""
 /* 1) 标题调小：手机更小，桌面稍大 */
 h1 { font-size: 1.35rem; line-height: 1.3; }
 @media (min-width: 768px) { h1 { font-size: 1.8rem; } }
-
-/* 4) 如果顶部 header 盖住了它，可提升按钮层级或略微透明 header（按需打开） */
-/* header[data-testid="stHeader"] { background: rgba(255,255,255,0.95) !important; } */
-
-/* 5)（可选）侧边栏更宽一点，操作更顺手 */
-section[data-testid="stSidebar"] { width: 320px !important; }
-section[data-testid="stSidebar"] > div { width: 320px !important; }
 </style>
 """, unsafe_allow_html=True)
-
 
 # 把原来的 st.title(...) 改成更小的层级（可选）
 # st.markdown("### 基于颞下颌关节及下前牙生物力学研究的下颌前移矫治器设计系统")
@@ -286,4 +278,5 @@ with st.sidebar:
     # st.divider()
 
     
+
 
